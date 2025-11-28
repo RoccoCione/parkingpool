@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'pages/home_page.dart';
+import 'pages/settings_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,86 +32,26 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = const Color(0xFFEBEBEB);
-    final Color buttonColor = const Color(0xFF333333);
-
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: const Color(0xFFEBEBEB),
       body: SafeArea(
         child: Stack(
           children: [
-            // --------------------------------------------------
-            // IL TITOLO + MENU A TENDINA
-            // --------------------------------------------------
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min, // Mantiene la riga compatta al centro
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Mappa dei parcheggi',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(width: 10), // Spazio tra titolo e menu
-
-                    // --- MENU A TENDINA  ---
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.menu, size: 30, color: Colors.black), // Icona hamburger
-                      onSelected: (String result) {
-                        // Qui gestisci cosa succede quando clicchi un'opzione
-                        print('Hai cliccato: $result');
-                      },
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'Opzione 1',
-                          child: Text('Fisciano'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'Opzione 2',
-                          child: Text('Baronissi'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'Opzione 3',
-                          child: Text('Avellino'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+            // 1. IL CONTENUTO DELLA PAGINA
+            // Usiamo IndexedStack per mantenere lo stato delle pagine (opzionale)
+            // oppure un semplice switch come qui sotto:
+            Padding(
+              padding: const EdgeInsets.only(bottom: 100), // Spazio per la nav
+              child: _getPageContent(_selectedIndex),
             ),
 
-            // --------------------------------------------------
-            // 2. I BOTTONI (Accedi / Esco)
-            // --------------------------------------------------
+            // 2. LA NAVBAR
             Positioned(
-              bottom: 100, // Alzati leggermente per non toccare la nav bar
-              left: 30,
-              right: 30,
-              height: 50,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildActionButton("Accedi", buttonColor),
-                  _buildActionButton("Esco", buttonColor),
-                ],
-              ),
-            ),
-
-            // --------------------------------------------------
-            // 3. LA BARRA DI NAVIGAZIONE PERSONALIZZATA
-            // --------------------------------------------------
-            Positioned(
-              bottom: 0, // Leggermente staccata dal fondo
+              bottom: 0,
               left: 20,
               right: 20,
               child: Container(
@@ -133,27 +75,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // --- ICONA HOME PIÙ GRANDE (Modifica 2) ---
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.home,
-                        size: 45, // Ingrandita (le altre sono 35)
-                        color: Color(0xFF347487),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.person, size: 35, color: Color(0xFF333333)),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.directions_car, size: 35, color: Color(0xFF333333)),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.settings, size: 35, color: Color(0xFF333333)),
-                    ),
+                    _buildNavItem(Icons.home, 0),
+                    _buildNavItem(Icons.person, 1),
+                    _buildNavItem(Icons.directions_car, 2),
+                    _buildNavItem(Icons.settings, 3),
                   ],
                 ),
               ),
@@ -164,25 +89,31 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Widget helper per creare i bottoni uguali
-  // --- TESTO CENTRATO (Modifica 1) ---
-  Widget _buildActionButton(String text, Color color) {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        alignment: Alignment.center, // Forza il testo al centro
-        fixedSize: const Size(140, 50), // Diamo una dimensione fissa per uniformità
-        padding: EdgeInsets.zero, // Rimuove padding extra che potrebbe spostare il testo
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center, // Allineamento testo
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
+  // Selettore della pagina
+  Widget _getPageContent(int index) {
+    switch (index) {
+      case 0:
+        return const HomePage(); // Va alla homepage
+      case 3:
+        return const SettingsPage(); // Va alle impostazioni
+      default:
+        return const Center(child: Text("Pagina in costruzione"));
+    }
+  }
+
+  // Widget icona nav bar
+  Widget _buildNavItem(IconData icon, int index) {
+    final bool isSelected = _selectedIndex == index;
+    return IconButton(
+      onPressed: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
+      icon: Icon(
+        icon,
+        size: isSelected ? 45 : 35,
+        color: isSelected ? const Color(0xFF347487) : const Color(0xFF333333),
       ),
     );
   }
